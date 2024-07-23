@@ -1,0 +1,11 @@
+# Cake Day plugin by NedHuman
+
+broadcast-msg: "&6{player} has received a cake for joining on their cake day!"
+
+# You may use {player} and {date}
+cake-day-item:
+  type: "CAKE" # A list of the items may be found here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Material.html
+  name: "&6Cake Day"
+  lore:
+    - "&eGiven to {player}"
+    - "&eCake day {date}"

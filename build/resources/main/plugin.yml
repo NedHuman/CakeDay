@@ -1,0 +1,9 @@
+name: CakeDay
+version: '1.0'
+main: dev.nedhuman.cakeday.CakeDay
+api-version: '1.20'
+author: NedHuman
+description: Plugin which gives you rewards if you join on your cake day
+commands:
+  whenismycakeday:
+    description: When is my cake day?

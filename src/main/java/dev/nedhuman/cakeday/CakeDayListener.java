@@ -47,24 +47,29 @@ public class CakeDayListener implements Listener {
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), i.replace("{player}", player.getName()));
                     }
 
-                    player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player));
+                    player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
                     launchFirework(player);
                 }, 20 * 2);
             }
         }
     }
 
-    private static ItemStack replaceNameAndDate(ItemStack item, Player player) {
+    private static ItemStack replaceNameAndDate(ItemStack item, Player player, int year) {
         ItemStack newItem = item.clone();
         ItemMeta meta = newItem.getItemMeta();
-        meta.setDisplayName(meta.getDisplayName().replace("{player}", player.getName()).replace("{date}", new Date().toString()));
+        meta.setDisplayName(meta.getDisplayName().replace("{player}", player.getName()).replace("{date}", formatDate(player, year)));
         List<String> newLore = new ArrayList<>();
         for(String i : meta.getLore()) {
-            newLore.add(i.replace("{player}", player.getName()).replace("{date}", new Date().toString()));
+            newLore.add(i.replace("{player}", player.getName()).replace("{date}", formatDate(player, year)));
         }
         meta.setLore(newLore);
         newItem.setItemMeta(meta);
         return newItem;
+    }
+
+    private static String formatDate(Player player, int year) {
+        LocalDate joined = LocalDate.ofInstant(Instant.ofEpochMilli(player.getFirstPlayed()), ZoneId.systemDefault());
+        return year+"-"+joined.getMonthValue()+"-"+joined.getDayOfMonth();
     }
 
     private static boolean cakeDayYearIsTheSameYearAsThePlayerFirstJoined(Player player, int year) {

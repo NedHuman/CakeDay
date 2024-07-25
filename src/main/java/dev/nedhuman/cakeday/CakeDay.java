@@ -59,11 +59,6 @@ public final class CakeDay extends JavaPlugin {
         return getConfig().getStringList("commands").toArray(new String[0]);
     }
 
-    /**
-     * Load the cake day item from config
-     * @return The cake day item
-     * @throws NullPointerException if malformed config
-     */
     public ItemStack loadCakeDayItem() throws NullPointerException{
         ConfigurationSection cdi = getConfig().getConfigurationSection("cake-day-item");
         if(cdi == null) {

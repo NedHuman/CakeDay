@@ -1,4 +1,4 @@
-package dev.nedhuman.cakeday;
+package dev.nedhuman.cakeday.command;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -10,7 +10,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
-public class WhenIsMyCakeDayCommand implements CommandExecutor {
+public class CakeDayCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player player) {

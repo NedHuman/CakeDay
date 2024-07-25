@@ -1,5 +1,7 @@
 package dev.nedhuman.cakeday;
 
+import dev.nedhuman.cakeday.command.CakeDayCommand;
+import dev.nedhuman.cakeday.command.ReceivedCakeCommand;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -16,6 +18,8 @@ public final class CakeDay extends JavaPlugin {
     public static NamespacedKey CAKE_DAY_KEY;
     private ItemStack cakeDayItem;
     private String msg;
+    private int daysCanClaim;
+    private String[] commands;
 
     @Override
     public void onEnable() {
@@ -26,10 +30,14 @@ public final class CakeDay extends JavaPlugin {
         try{
             msg = ChatColor.translateAlternateColorCodes('&', getConfig().getString("broadcast-msg"));
             cakeDayItem = loadCakeDayItem();
-        }catch (NullPointerException e) {
+            daysCanClaim = daysCanClaim();
+            commands = commands();
+        }catch (Exception e) {
+            e.printStackTrace();
             getPluginLoader().disablePlugin(this);
         }
-        getCommand("whenismycakeday").setExecutor(new WhenIsMyCakeDayCommand());
+        getCommand("receivedcake").setExecutor(new ReceivedCakeCommand());
+        getCommand("whenismycakeday").setExecutor(new CakeDayCommand());
     }
 
     public String getMsg() {
@@ -42,6 +50,20 @@ public final class CakeDay extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
     }
+
+    private int daysCanClaim() {
+        return getConfig().getInt("days-can-claim");
+    }
+
+    private String[] commands() {
+        return getConfig().getStringList("commands").toArray(new String[0]);
+    }
+
+    /**
+     * Load the cake day item from config
+     * @return The cake day item
+     * @throws NullPointerException if malformed config
+     */
     public ItemStack loadCakeDayItem() throws NullPointerException{
         ConfigurationSection cdi = getConfig().getConfigurationSection("cake-day-item");
         if(cdi == null) {
@@ -59,5 +81,13 @@ public final class CakeDay extends JavaPlugin {
         meta.setLore(lore);
         item.setItemMeta(meta);
         return item;
+    }
+
+    public int getDaysCanClaim() {
+        return daysCanClaim;
+    }
+
+    public String[] getCommands() {
+        return commands;
     }
 }

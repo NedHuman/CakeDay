@@ -13,11 +13,11 @@ import java.time.ZoneId;
 public class CakeDayCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(sender instanceof Player player) {
+        if (sender instanceof Player player) {
             LocalDateTime date = LocalDateTime.ofInstant(Instant.ofEpochMilli(player.getFirstPlayed()), ZoneId.systemDefault());
             int month = date.getMonthValue();
             int day = date.getDayOfMonth();
-            player.sendMessage(ChatColor.GOLD+"Your cake day is on "+month+"-"+day);
+            player.sendMessage(ChatColor.GOLD + "Your cake day is on " + month + "-" + day);
         }
         return true;
     }

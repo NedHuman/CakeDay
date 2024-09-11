@@ -19,6 +19,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class CakeDayListener implements Listener {
@@ -131,7 +132,13 @@ public class CakeDayListener implements Listener {
                         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), i.replace("{player}", player.getName()));
                     }
 
-                    player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
+                    // inventory is not full
+                    if(player.getInventory().firstEmpty() != -1) {
+                        player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
+                    }else{
+                        player.getWorld().dropItem(player.getLocation(), replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
+                    }
+
                     launchFirework(player);
                 }, 20 * 2);
             }

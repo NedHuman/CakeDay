@@ -15,6 +15,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -47,19 +48,16 @@ public class CakeDayListener implements Listener {
         return joined.getYear() == year;
     }
 
-    private static int howManyDaysAgoWasCakeDay(Player player) {
+    private static LocalDate getMostRecentCakeDay(Player player) {
         LocalDate cakeDay = LocalDate.ofInstant(Instant.ofEpochMilli(player.getFirstPlayed()), ZoneId.systemDefault());
         LocalDate now = LocalDate.now();
+        LocalDate mostRecentCakeDay = cakeDay.withYear(now.getYear());
 
-        LocalDate mostRecentCakeDay;
-
-        // Should we use last year or this year's cake day?
-        if (now.getDayOfYear() >= cakeDay.getDayOfYear()) {
-            mostRecentCakeDay = LocalDate.of(now.getYear(), cakeDay.getMonth(), cakeDay.getDayOfMonth());
-        } else {
-            mostRecentCakeDay = LocalDate.of(now.getYear() - 1, cakeDay.getMonth(), cakeDay.getDayOfMonth());
+        // Should we use last year's cake day
+        if (mostRecentCakeDay.isAfter(now)) {
+            mostRecentCakeDay = mostRecentCakeDay.withYear(now.getYear()-1);
         }
-        return (int) ChronoUnit.DAYS.between(mostRecentCakeDay, now);
+        return mostRecentCakeDay;
     }
 
     private static boolean playerHasClaimedThisYear(Player player, int year) {
@@ -68,11 +66,6 @@ public class CakeDayListener implements Listener {
             years = new ArrayList<>();
         }
         return years.contains(year);
-    }
-
-    private static int getYearTheseDaysAgo(int daysAgo) {
-        LocalDate now = LocalDate.now();
-        return now.minusDays(daysAgo).getYear();
     }
 
     private static void registerClaim(Player player, int year) {
@@ -111,17 +104,17 @@ public class CakeDayListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        int daysAgo = howManyDaysAgoWasCakeDay(player);
+        LocalDate cakeDay = getMostRecentCakeDay(player);
+        int daysAgo = (int) ChronoUnit.DAYS.between(cakeDay, LocalDate.now());
         // Checks if the most recent cake day is within bounds of claiming
         if (daysAgo <= CakeDay.INSTANCE.getDaysCanClaim()) {
-            int yearTheseDaysAgo = getYearTheseDaysAgo(daysAgo);
             // Checks if the player has claimed this year already
-            if (!playerHasClaimedThisYear(player, yearTheseDaysAgo)) {
-                if (cakeDayYearIsTheSameYearAsThePlayerFirstJoined(player, yearTheseDaysAgo)) {
+            if (!playerHasClaimedThisYear(player, cakeDay.getYear())) {
+                if (cakeDayYearIsTheSameYearAsThePlayerFirstJoined(player, cakeDay.getYear())) {
                     return;
                 }
                 // Registers the claim
-                registerClaim(player, yearTheseDaysAgo);
+                registerClaim(player, cakeDay.getYear());
 
                 // Execute rewards (wait 2 seconds first)
                 Bukkit.getScheduler().runTaskLater(CakeDay.INSTANCE, () -> {
@@ -134,9 +127,9 @@ public class CakeDayListener implements Listener {
 
                     // inventory is not full
                     if(player.getInventory().firstEmpty() != -1) {
-                        player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
+                        player.getInventory().addItem(replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, cakeDay.getYear()));
                     }else{
-                        player.getWorld().dropItem(player.getLocation(), replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, yearTheseDaysAgo));
+                        player.getWorld().dropItem(player.getLocation(), replaceNameAndDate(CakeDay.INSTANCE.getCakeDayItem(), player, cakeDay.getYear()));
                     }
 
                     launchFirework(player);
